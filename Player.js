@@ -59,15 +59,16 @@ class Player {
 		this.grounded = true;
 		this.runAcceleration = 4;
 		this.moveSpeed = 8;
-		this.friction = 0.8;
-		this.airAcceleration = 6;
-		this.airDeceleration = 8;
-		this.sideStrafeSpeed = 6;
+		this.friction = 0.9;
+		this.airAcceleration = 2;
+		this.airDeceleration = 6;
+		this.sideStrafeSpeed = 4;
 		this.sideStrafeAcceleration = 4;
 		this.wishJump = false;
-		this.jumpPower = 3;
+		this.jumpPower = 1;
 		this.gravity = 3;
-		this.airControlPower = 5;
+		this.airControlPower = 3;
+		this.deltaTime = 0;
 	}
 
 	update() {
@@ -75,16 +76,21 @@ class Player {
 		this.update_camera();
 		this.update_wishDir();
 		this.queueJump();
+		this.deltaTime = this.clock.getDelta();
 
-		console.log(this.wishJump);
+		this.velocity.y -= this.gravity * this.deltaTime;
+		
+
+		console.log("wishJump: " + this.wishJump);
 
 		if(this.camera.position.y <= 35) {
 			this.camera.position.y = 35;
-			this.velocity.y = 0;
 			this.grounded = true;
 		} else {
 			this.grounded = false;
 		}
+
+		console.log("grounded: " + this.grounded)
 
 		if(this.grounded) {
 			this.groundMove();
@@ -127,8 +133,7 @@ class Player {
 			return;
 		}
 
-		const deltaTime = this.clock.getDelta()
-		let accelSpeed = accel * deltaTime * wishSpeed;
+		let accelSpeed = accel * this.deltaTime * wishSpeed;
 
 		if (accelSpeed > addSpeed) {
 			accelSpeed = addSpeed;
@@ -155,7 +160,7 @@ class Player {
 		this.velocity.y = 0;
 
 		if (this.wishJump) {
-			this.velocity.y = this.jumpPower * this.clock.getDelta();
+			this.velocity.y = this.jumpPower;
 			this.wishJump = false;
 		}
 	}
@@ -183,7 +188,6 @@ class Player {
 
 		this.accelerate(wishSpeed, accel);
 		this.airControl(wishSpeed2);
-		this.velocity.y -= this.gravity * this.clock.getDelta();
 	}
 
 	airControl(wishSpeed) {
@@ -196,7 +200,7 @@ class Player {
 		let speed = this.velocity.length();
 
 		let dot = this.velocity.dot(this.wishDir);
-		let k = this.airControlPower * dot * dot * 32 * this.clock.getDelta();
+		let k = this.airControlPower * dot * dot * 32 * this.deltaTime;
 
 		if (dot > 0) {
 			this.velocity.multiply(this.wishDir);
