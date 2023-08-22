@@ -2,6 +2,7 @@ import * as THREE from 'three';
 
 class Input {
 	constructor() {
+		this.mouseFired = false;
 		this.deltaX = 0
 		this.deltaY = 0;
 		this.pointerLock = false;
@@ -13,6 +14,15 @@ class Input {
 		document.body.addEventListener('keydown', (event) => this.keyDown(event), false);
 		document.body.addEventListener('keyup', (event) => this.keyUp(event), false);
 		document.body.addEventListener('mousemove', (event) => this.mouseMove(event), false);
+	}
+
+	update() {
+		this.pointerLock = (document.pointerLockElement == document.body)? true : false;
+		if (this.mouseFired == false) {
+			this.mouseMove();
+		}
+
+		this.mouseFired = false;
 	}
 
 	keyDown(event) {
@@ -27,9 +37,8 @@ class Input {
 		return this.keys[code];
 	}
 
-	mouseMove(event) {
-		this.pointerLock = (document.pointerLockElement == document.body)? true : false;
-
+	mouseMove(event = 0) {
+		this.mouseFired = true;
 		this.deltaX = event.movementX || 0;
 		this.deltaY = event.movementY || 0;
 	}
@@ -46,6 +55,7 @@ class Player {
 	}
 
 	update() {
+		this.input.update();
 		this.update_camera();
 		this.update_wishDir();
 	}
@@ -65,8 +75,8 @@ class Player {
 	update_wishDir() {
 		this.wishDir.set(0, 0, 0);
 
-		this.wishDir.x = ((this.input.key(87) == true)? 1 : 0) + ((this.input.key(83) == true)? -1 : 0);
-		this.wishDir.y = ((this.input.key(65) == true)? 1 : 0) + ((this.input.key(68) == true)? -1 : 0);
+		this.wishDir.z = ((this.input.key(87) == true)? -1 : 0) + ((this.input.key(83) == true)? 1 : 0);
+		this.wishDir.x = ((this.input.key(65) == true)? -1 : 0) + ((this.input.key(68) == true)? 1 : 0);
 
 		this.wishDir.applyQuaternion(this.camera.quaternion);
 
