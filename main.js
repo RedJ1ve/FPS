@@ -23,6 +23,8 @@ player.camera.position.set(0,2,0);
 function animate() {
 	requestAnimationFrame( animate );
 
+	player.update();
+
 	cube.rotation.x += 0.01;
 	cube.rotation.y += 0.01;
 

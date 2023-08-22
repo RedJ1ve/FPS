@@ -1,28 +1,59 @@
 import * as THREE from 'three';
 
-class Player {
+class Input {
 	constructor() {
+		this.deltaX = 0
+		this.deltaY = 0;
+		this.pointerLock = false;
+		this.keys = {};
+
 		document.body.addEventListener('click', async () => {
 			document.body.requestPointerLock();
 		});
-		document.body.addEventListener('keydown', (event) => this.update_wishDir(event), false);
-		document.body.addEventListener('mousemove', (event) => this.update_rotation(event), false);
-        this.euler = new THREE.Euler(0, 0, 0, 'YXZ');
+		document.body.addEventListener('keydown', (event) => this.keyDown(event), false);
+		document.body.addEventListener('keyup', (event) => this.keyUp(event), false);
+		document.body.addEventListener('mousemove', (event) => this.mouseMove(event), false);
+	}
+
+	keyDown(event) {
+		this.keys[event.keyCode] = true;
+	}
+
+	keyUp(event) {
+		this.keys[event.keyCode] = false;
+	}
+
+	key(code) {
+		return this.keys[code];
+	}
+
+	mouseMove(event) {
+		this.pointerLock = (document.pointerLockElement == document.body)? true : false;
+
+		this.deltaX = event.movementX || 0;
+		this.deltaY = event.movementY || 0;
+	}
+}
+
+class Player {
+	constructor() {
+		this.input = new Input();
+		this.euler = new THREE.Euler(0, 0, 0, 'YXZ');
 		this.sensitivity = 0.01;
         this.camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 		this.lookDir = new THREE.Vector3(0, 0, 0);
 		this.wishDir = new THREE.Vector3(0, 0, 0);
 	}
 
-	update_rotation(event) {
-		const pointerLock = (document.pointerLockElement == document.body)? true : false;
+	update() {
+		this.update_camera();
+		this.update_wishDir();
+	}
 
-		if (pointerLock == true) {
-			const deltaX = event.movementX || 0;
-			const deltaY = event.movementY || 0;
-
-        	this.euler.y -= deltaX * this.sensitivity;
-        	this.euler.x -= deltaY * this.sensitivity;
+	update_camera() {
+		if (this.input.pointerLock == true) {
+			this.euler.y -= this.input.deltaX * this.sensitivity;
+        	this.euler.x -= this.input.deltaY * this.sensitivity;
 			this.euler.x = Math.min(Math.max(this.euler.x, -Math.PI / 3), Math.PI / 3);
 
         	this.camera.quaternion.setFromEuler(this.euler);
@@ -31,23 +62,11 @@ class Player {
 		}
 	}
 
-	update_wishDir(event) {
+	update_wishDir() {
 		this.wishDir.set(0, 0, 0);
 
-		switch (event.keyCode) {
-			case 87:	// W key
-				this.wishDir.z -= 1;
-				break;
-			case 65:	// A key
-				this.wishDir.x -= 1;
-				break;
-			case 83:	// S key
-				this.wishDir.z += 1;
-				break;
-			case 68:	// D key
-				this.wishDir.x += 1;
-				break;
-		}
+		this.wishDir.x = ((this.input.key(87) == true)? 1 : 0) + ((this.input.key(83) == true)? -1 : 0);
+		this.wishDir.y = ((this.input.key(65) == true)? 1 : 0) + ((this.input.key(68) == true)? -1 : 0);
 
 		this.wishDir.applyQuaternion(this.camera.quaternion);
 
