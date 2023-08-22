@@ -47,17 +47,53 @@ class Input {
 class Player {
 	constructor() {
 		this.input = new Input();
+		this.clock = new THREE.Clock();
 		this.euler = new THREE.Euler(0, 0, 0, 'YXZ');
 		this.sensitivity = 0.01;
         this.camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 		this.lookDir = new THREE.Vector3(0, 0, 0);
 		this.wishDir = new THREE.Vector3(0, 0, 0);
+		this.forwardSpeed = 1;
+		this.sideSpeed = 1;
+		this.velocity = new THREE.Vector3(0, 0, 0);
+		this.grounded = true;
+		this.runAcceleration = 4;
+		this.moveSpeed = 8;
+		this.friction = 0.8;
+		this.airAcceleration = 6;
+		this.airDeceleration = 8;
+		this.sideStrafeSpeed = 6;
+		this.sideStrafeAcceleration = 4;
+		this.wishJump = false;
+		this.jumpPower = 3;
+		this.gravity = 3;
+		this.airControlPower = 5;
 	}
 
 	update() {
 		this.input.update();
 		this.update_camera();
 		this.update_wishDir();
+		this.queueJump();
+
+		console.log(this.wishJump);
+
+		if(this.camera.position.y <= 35) {
+			this.camera.position.y = 35;
+			this.velocity.y = 0;
+			this.grounded = true;
+		} else {
+			this.grounded = false;
+		}
+
+		if(this.grounded) {
+			this.groundMove();
+		} else {
+			this.airMove();
+		}
+
+		this.camera.position.add(this.velocity);
+		// console.log(this.velocity.length());
 	}
 
 	update_camera() {
@@ -75,14 +111,116 @@ class Player {
 	update_wishDir() {
 		this.wishDir.set(0, 0, 0);
 
-		this.wishDir.z = ((this.input.key(87) == true)? -1 : 0) + ((this.input.key(83) == true)? 1 : 0);
-		this.wishDir.x = ((this.input.key(65) == true)? -1 : 0) + ((this.input.key(68) == true)? 1 : 0);
+		this.wishDir.z = ((this.input.key(87) == true)? -this.forwardSpeed : 0) + ((this.input.key(83) == true)? this.forwardSpeed : 0);
+		this.wishDir.x = ((this.input.key(65) == true)? -this.sideSpeed : 0) + ((this.input.key(68) == true)? this.sideSpeed : 0);
 
 		this.wishDir.applyQuaternion(this.camera.quaternion);
 
 		this.wishDir.y = 0;
+	}
 
-		this.camera.position.add(this.wishDir);
+	accelerate(wishSpeed, accel) {
+		let currentSpeed = this.velocity.dot(this.wishDir);
+		let addSpeed = wishSpeed - currentSpeed;
+
+		if (addSpeed <=0) {
+			return;
+		}
+
+		const deltaTime = this.clock.getDelta()
+		let accelSpeed = accel * deltaTime * wishSpeed;
+
+		if (accelSpeed > addSpeed) {
+			accelSpeed = addSpeed;
+		}
+
+		const wishDir2 = new THREE.Vector3();
+		wishDir2.copy(this.wishDir);
+		wishDir2.y = 0;
+		wishDir2.multiplyScalar(accelSpeed);
+		this.velocity.add(wishDir2);
+	}
+
+	groundMove() {
+		if(!this.wishJump) {
+			this.applyFriction();
+		}
+
+		this.update_wishDir();
+		this.wishDir.normalize();
+		let wishSpeed = this.wishDir.length() * this.moveSpeed;
+
+		this.accelerate(wishSpeed, this.runAcceleration);
+
+		this.velocity.y = 0;
+
+		if (this.wishJump) {
+			this.velocity.y = this.jumpPower * this.clock.getDelta();
+			this.wishJump = false;
+		}
+	}
+
+	airMove() {
+		this.update_wishDir();
+		let wishSpeed = this.wishDir.length() * this.moveSpeed;
+		this.wishDir.normalize();
+
+		let accel;
+		 
+		if (this.velocity.dot(this.wishDir) < 0) {
+			accel = this.airDeceleration;
+		} else {
+			accel = this.airAcceleration;
+		}
+
+		let wishSpeed2 = wishSpeed;
+		if ((this.input.key(65) || this.input.key(68)) && (!this.input.key(87) || !this.input.key(83))) {
+			if (wishSpeed > this.sideStrafeSpeed) {
+				wishSpeed = this.sideStrafeSpeed;
+			}
+			accel = this.sideStrafeAcceleration
+		}
+
+		this.accelerate(wishSpeed, accel);
+		this.airControl(wishSpeed2);
+		this.velocity.y -= this.gravity * this.clock.getDelta();
+	}
+
+	airControl(wishSpeed) {
+		if (this.input.key(87) || this.input.key(83) || wishSpeed == 0) {
+			return
+		}
+
+		let ySpeed = this.velocity.y;
+		this.velocity.y = 0;
+		let speed = this.velocity.length();
+
+		let dot = this.velocity.dot(this.wishDir);
+		let k = this.airControlPower * dot * dot * 32 * this.clock.getDelta();
+
+		if (dot > 0) {
+			this.velocity.multiply(this.wishDir);
+			this.velocity.multiplyScalar(speed * k);
+		}
+
+		this.velocity.x *= speed;
+		this.velocity.y = ySpeed;
+		this.velocity.z *= speed;
+	}
+
+	queueJump() {
+		if (this.input.key(32) /*  && !this.wishJump  */) {
+			this.wishJump = true;
+		}
+	}
+
+
+
+	applyFriction() {
+		if (this.grounded) {
+			this.velocity.x *= this.friction;
+			this.velocity.z *= this.friction;
+		}
 	}
 }
 

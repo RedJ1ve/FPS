@@ -7,7 +7,7 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
-const gridHelper = new THREE.GridHelper( 1000, 20 );
+const gridHelper = new THREE.GridHelper(30000, 1000);
 scene.add( gridHelper );
 
 let player = new Player();
