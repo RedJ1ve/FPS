@@ -19,14 +19,9 @@ let player = new Player();
 
 player.camera.position.set(0,2,0);
 
-const origin = new THREE.Vector3(0,0,0);
-let arrowHelper = new THREE.ArrowHelper(player.lookDir2, origin, 0xffff00);
-scene.add(arrowHelper);
 
 function animate() {
 	requestAnimationFrame( animate );
-
-	arrowHelper.setDirection(player.lookDir)
 
 	cube.rotation.x += 0.01;
 	cube.rotation.y += 0.01;
