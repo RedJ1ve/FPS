@@ -57,17 +57,17 @@ class Player {
 		this.sideSpeed = 1;
 		this.velocity = new THREE.Vector3(0, 0, 0);
 		this.grounded = true;
-		this.runAcceleration = 4;
-		this.moveSpeed = 8;
-		this.friction = 0.9;
-		this.airAcceleration = 2;
-		this.airDeceleration = 6;
-		this.sideStrafeSpeed = 4;
-		this.sideStrafeAcceleration = 4;
+		this.runAcceleration = 14;
+		this.moveSpeed = 4;
+		this.friction = 0.94;
+		this.airAcceleration = 1.6;
+		this.airDeceleration = 1.6;
+		this.sideStrafeSpeed = 1;
+		this.sideStrafeAcceleration = 15;
 		this.wishJump = false;
-		this.jumpPower = 1;
+		this.jumpPower = 1.1;
 		this.gravity = 3;
-		this.airControlPower = 3;
+		this.airControlPower = 0.8;
 		this.deltaTime = 0;
 	}
 
@@ -75,13 +75,9 @@ class Player {
 		this.input.update();
 		this.update_camera();
 		this.update_wishDir();
-		this.queueJump();
 		this.deltaTime = this.clock.getDelta();
 
 		this.velocity.y -= this.gravity * this.deltaTime;
-		
-
-		console.log("wishJump: " + this.wishJump);
 
 		if(this.camera.position.y <= 35) {
 			this.camera.position.y = 35;
@@ -90,16 +86,14 @@ class Player {
 			this.grounded = false;
 		}
 
-		console.log("grounded: " + this.grounded)
-
 		if(this.grounded) {
 			this.groundMove();
 		} else {
 			this.airMove();
 		}
 
-		this.camera.position.add(this.velocity);
 		// console.log(this.velocity.length());
+		this.camera.position.add(this.velocity);
 	}
 
 	update_camera() {
@@ -147,6 +141,8 @@ class Player {
 	}
 
 	groundMove() {
+		this.queueJump();
+
 		if(!this.wishJump) {
 			this.applyFriction();
 		}
@@ -191,13 +187,14 @@ class Player {
 	}
 
 	airControl(wishSpeed) {
-		if (this.input.key(87) || this.input.key(83) || wishSpeed == 0) {
+		if (!this.input.key(87) || !this.input.key(83) || wishSpeed == 0) {
 			return
 		}
 
 		let ySpeed = this.velocity.y;
 		this.velocity.y = 0;
 		let speed = this.velocity.length();
+		this.velocity.normalize();
 
 		let dot = this.velocity.dot(this.wishDir);
 		let k = this.airControlPower * dot * dot * 32 * this.deltaTime;
