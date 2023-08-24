@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import Player from './Player.js'
-import Collision from './Collision.js';
+import GJK from './Collision.js';
 
 const scene = new THREE.Scene();
-const collision = new Collision();
+// const collision = new Collision();
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
@@ -27,33 +27,14 @@ const mesh2 = new THREE.Mesh( geometry2, material2 );
 mesh2.position.set(0, 20, 300);
 scene.add(mesh2);
 
-const positionAttribute = mesh1.geometry.getAttribute( 'position' );
-
-const vertex = new THREE.Vector3();
-
-for ( let vertexIndex = 0; vertexIndex < positionAttribute.count; vertexIndex ++ ) {
-
-	vertex.fromBufferAttribute( positionAttribute, vertexIndex );
-
-	console.log(vertex)
-
-}
-
 function animate() {
 	requestAnimationFrame( animate );
 
 	player.update();
 	mesh1.position.set(player.camera.position.x, player.camera.position.y - 40, player.camera.position.z)
-	// console.log(collision.GJK(mesh1, mesh2));
+	console.log(GJK(mesh1, mesh2));
+	// GJK(mesh1, mesh2)
 	renderer.render( scene, player.camera );
-
-	/* for ( let vertexIndex = 0; vertexIndex < positionAttribute.count; vertexIndex ++ ) {
-
-		vertex.fromBufferAttribute( positionAttribute, vertexIndex );
-	
-		console.log(vertex)
-	
-	} */
 }
 
 animate();
