@@ -1,225 +1,9 @@
 import * as THREE from 'three';
 import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 
-/* class Simplex {
-    constructor() {
-        this.points = new Array();
-    }
-
-    pushFront(point) {
-        if (this.points.length < 4) {
-            this.points.unshift(point);
-        } else {
-            this.points[3].set(this.points[2]);
-            this.points[2].set(this.points[1]);
-            this.points[1].set(this.points[0]);
-            this.points[0].set(point);
-        }
-    }
-} */
-
-/* class Collision {
-    constructor() {
-        this.direction;
-        this.simplex;
-        this.support;
-    }
-
-Support(collider1, collider2, direction) {
-    let shape1 = BufferGeometryUtils.mergeVertices(collider1.geometry, 3).attributes.position.array; //.geometry.position.array;
-    let vertices1 = new Array();
-
-    let shape2 = BufferGeometryUtils.mergeVertices(collider2.geometry, 3).attributes.position.array; //.geometry.position.array;
-    let vertices2 = new Array();
-
-    for (let i = 0; i < shape1.length; i=i+3) {
-        let vertex = new THREE.Vector3(shape1[i], shape1[i+1], shape1[i+2]);
-        vertices1.push(collider1.localToWorld(vertex));
-    }
-    
-    for (let i = 0; i < shape2.length; i=i+3) {
-        let vertex = new THREE.Vector3(shape2[i], shape2[i+1], shape2[i+2])
-        vertices2.push(collider2.localToWorld(vertex));
-    }
-
-	let furthest1 = this.FindFurthestPoint(vertices1, direction);
-	let furthest2 = this.FindFurthestPoint(vertices2, -direction);
-
-    return (furthest1.sub(furthest2));
-}
-
-FindFurthestPoint(vertices, direction) {
-    let maxPoint = new THREE.Vector3();
-    let maxDistance = -Infinity;
-
-    for (let i =0; i < vertices.length; i++) {
-        let distance = vertices[i].dot(direction);
-
-        if (distance > maxDistance) {
-            maxDistance = distance;
-            maxPoint.copy(vertices[i]);
-        }
-    }
-
-    return maxPoint;
-}
-
-GJK(collider1, collider2) {
-    this.support = this.Support(collider1, collider2, new THREE.Vector3(1, 0, 0));
-	this.simplex = [this.support]
-
-    //console.log(this.support);
-
-	this.direction = new THREE.Vector3(-this.support.x, -this.support.y, -this.support.z);
-	
-	while (true) {
-		this.support = this.Support(collider1, collider2, this.direction);
-
-		if (this.support.dot(this.direction) <= 0) {
-            return false;
-		}
-
-		if (this.simplex.length < 4) {
-            this.simplex.unshift(this.support);
-        } else {
-            this.simplex[3].set(this.simplex[2]);
-            this.simplex[2].set(this.simplex[1]);
-            this.simplex[1].set(this.simplex[0]);
-            this.simplex[0].set(this.support);
-        }
-
- 		if (this.NextSimplex()) {
-			return true;
-		}
-	}
-}
-
-NextSimplex() {
-	switch (this.simplex.length) {
-		case 2: return this.Line();
-		case 3: return this.Triangle();
-		case 4: return this.Tetrahedron();
-	}
-
-	return false;
-}
-
-SameDirection(direction1, direction2) {
-	return direction1.dot(direction2) > 0;
-}
-
-Line() {
-	let a = new THREE.Vector3();
-	let b = new THREE.Vector3();
-	a.copy(this.simplex[0]);
-	b.copy(this.simplex[1]);
-
-	let ab = a.sub(b)
-	let ao = new THREE.Vector3(-a.x, -a.y, -a.z);
-
-	if (this.SameDirection(ab, ao)) {
-		this.direction = ab.cross(ao).cross(ab)
-	} else {
-		this.simplex.pop();
-        this.simplex[0] = a;
-		this.direction = ao;
-	}
-
-    console.log('Entering Line method');
-console.log('Current simplex:', this.simplex);
-console.log('Current direction:', this.direction);
-
-	return false;
-}
-
-Triangle() {
-    let a = this.simplex[0];
-    let b = this.simplex[1];
-    let c = this.simplex[2];
-
-    let ab = b.sub(a);
-    let ac = c.sub(a);
-    let ao = new THREE.Vector3(-a.x, -a.y, -a.z);
-
-    let abc = ab.cross(ac);
-
-    if (this.SameDirection(abc.cross(ac), ao)) {
-        if (this.SameDirection(ac, ao)) {
-            this.simplex.pop();
-            this.simplex[0] = a;
-            this.simplex[1] = b;
-            this.direction = ac.cross(ao).cross(ac);
-        } else {
-            this.simplex.pop();
-            return this.Line();
-        }
-    } else {
-        if (this.SameDirection(ab.cross(abc), ao)) {
-            this.simplex.pop();
-            return this.Line()
-        } else {
-            if (this.SameDirection(abc, ao)) {
-                this.direction = abc;
-            } else {
-                this.simplex.pop();
-                this.simplex[0] = a;
-                this.simplex[1] = b;
-                this.simplex[2] = c;
-                this.direction = new THREE.Vector3(-abc.x, -abc.y, -abc.z);
-            }
-        }
-    }
-
-    console.log('Entering Line method');
-    console.log('Current simplex:', this.simplex);
-    console.log('Current direction:', this.direction);
-
-    return false;
-}
-
-Tetrahedron() {
-    let a = this.simplex[0];
-    let b = this.simplex[1];
-    let c = this.simplex[2];
-    let d = this.simplex[3];
-
-    let ab = b.sub(a);
-    let ac = c.sub(a);
-    let ad = d.sub(a);
-    let ao = new THREE.Vector3(-a.x, -a.y, -a.z);
-
-    let abc = ab.cross(ac);
-    let acd = ac.cross(ad);
-    let adb = ad.cross(ab);
-
-    if (this.SameDirection(abc, ao)) {
-        this.simplex.pop();
-        this.simplex[0].copy(a);
-        this.simplex[1].copy(b);
-        this.simplex[2].copy(c);
-        return this.Triangle();
-    } else if (this.SameDirection(acd, ao)) {
-        this.simplex.pop();
-        this.simplex[0].copy(a);
-        this.simplex[1].copy(c);
-        this.simplex[2].copy(d);
-        return this.Triangle();
-    } else if (this.SameDirection(adb, ao)) {
-        this.simplex.pop();
-        this.simplex[0].copy(a);
-        this.simplex[1].copy(d);
-        this.simplex[2].copy(b);
-        return this.Triangle()
-    }
-
-    console.log('Entering Line method');
-console.log('Current simplex:', this.simplex);
-console.log('Current direction:', this.direction);
-
-    return true;
-}
-
-} */
+/*
+COLLISION DETECTION
+*/
 
 function GJK(collider1, collider2) {
     let simplex = [
@@ -443,6 +227,29 @@ function findFurthestPoint(collider, direction) {
     }
 
     return longest;
+}
+
+/*
+COLLISION RESOLUTION
+*/
+
+function EPA(simplex, collider1, collider2) {
+    let minIndex = 0;
+    let minDistance = Infinity;
+    let minNormal;
+
+    while (minDistance == Infinity) {
+        for (let i = 0; i < simplex.length; i++) {
+            let j = (i+1) % simplex.length;
+
+            let vertexI = simplex[i].copy();
+            let vertexJ = simplex[j].copy();
+
+            let ij = vertexJ.copy().sub(vertexI);
+
+            let normal = new THREE.Vector3(ij.y, )
+        }
+    }
 }
 
 export default GJK;

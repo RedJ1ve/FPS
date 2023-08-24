@@ -46,6 +46,7 @@ class Input {
 
 class Player {
 	constructor() {
+		this.height = 20;
 		this.input = new Input();
 		this.clock = new THREE.Clock();
 		this.euler = new THREE.Euler(0, 0, 0, 'YXZ');
@@ -58,16 +59,16 @@ class Player {
 		this.velocity = new THREE.Vector3(0, 0, 0);
 		this.grounded = true;
 		this.runAcceleration = 14;
-		this.moveSpeed = 4;
+		this.moveSpeed = 7;
 		this.friction = 0.94;
-		this.airAcceleration = 1.6;
-		this.airDeceleration = 1.6;
+		this.airAcceleration = 2;
+		this.airDeceleration = 2;
 		this.sideStrafeSpeed = 1;
-		this.sideStrafeAcceleration = 15;
+		this.sideStrafeAcceleration = 50;
 		this.wishJump = false;
 		this.jumpPower = 1.1;
 		this.gravity = 3;
-		this.airControlPower = 0.8;
+		this.airControlPower = 0.3;
 		this.deltaTime = 0;
 	}
 
@@ -79,8 +80,8 @@ class Player {
 
 		this.velocity.y -= this.gravity * this.deltaTime;
 
-		if(this.camera.position.y <= 35) {
-			this.camera.position.y = 35;
+		if(this.camera.position.y <= this.height) {
+			this.camera.position.y = this.height;
 			this.grounded = true;
 		} else {
 			this.grounded = false;
@@ -92,7 +93,6 @@ class Player {
 			this.airMove();
 		}
 
-		// console.log(this.velocity.length());
 		this.camera.position.add(this.velocity);
 	}
 
