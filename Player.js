@@ -59,15 +59,15 @@ class Player {
 		this.velocity = new THREE.Vector3(0, 0, 0);
 		this.grounded = true;
 		this.runAcceleration = 14;
-		this.moveSpeed = 5;
+		this.moveSpeed = 7;
 		this.friction = 0.94;
 		this.airAcceleration = 2;
 		this.airDeceleration = 2;
 		this.sideStrafeSpeed = 1;
 		this.sideStrafeAcceleration = 50;
 		this.wishJump = false;
-		this.jumpPower = 1.1;
-		this.gravity = 3;
+		this.jumpPower = 2;
+		this.gravity = 6;
 		this.airControlPower = 0.3;
 		this.deltaTime = 0;
 	}
@@ -76,12 +76,7 @@ class Player {
 		this.input.update();
 		this.update_camera();
 		this.update_wishDir();
-
-		if(this.input.keys[16]) {
-			this.deltaTime = this.clock.getDelta() * 0.3;
-		} else {
-			this.deltaTime = this.clock.getDelta();
-		}
+		this.deltaTime = this.clock.getDelta();
 
 		this.velocity.y -= this.gravity * this.deltaTime;
 
@@ -99,7 +94,8 @@ class Player {
 		}
 
 		console.log(this.velocity.length());
-		this.camera.position.add(this.velocity);
+
+		this.camera.position.add(this.velocity.clone().multiplyScalar(this.deltaTime * 60));
 	}
 
 	update_camera() {
