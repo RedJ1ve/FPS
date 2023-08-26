@@ -59,7 +59,7 @@ class Player {
 		this.velocity = new THREE.Vector3(0, 0, 0);
 		this.grounded = true;
 		this.runAcceleration = 14;
-		this.moveSpeed = 7;
+		this.moveSpeed = 5;
 		this.friction = 0.94;
 		this.airAcceleration = 2;
 		this.airDeceleration = 2;
@@ -93,6 +93,7 @@ class Player {
 			this.airMove();
 		}
 
+		console.log(this.velocity.length());
 		this.camera.position.add(this.velocity);
 	}
 
@@ -187,7 +188,7 @@ class Player {
 	}
 
 	airControl(wishSpeed) {
-		if (!this.input.key(87) || !this.input.key(83) || wishSpeed == 0) {
+		if (!this.input.key(87) || !this.input.key(83) || wishSpeed < 0.01) {
 			return
 		}
 
@@ -200,8 +201,11 @@ class Player {
 		let k = this.airControlPower * dot * dot * 32 * this.deltaTime;
 
 		if (dot > 0) {
-			this.velocity.multiply(this.wishDir);
-			this.velocity.multiplyScalar(speed * k);
+			this.velocity.x = this.velocity.x * speed * this.wishDir.x * k;
+			this.velocity.y = this.velocity.y * speed * this.wishDir.y * k;
+			this.velocity.z = this.velocity.z * speed * this.wishDir.z * k;
+
+			this.velocity.normalize();
 		}
 
 		this.velocity.x *= speed;
