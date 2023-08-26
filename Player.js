@@ -77,7 +77,7 @@ class Player {
 		this.update_camera();
 		this.update_wishDir();
 
-		if(this.input.keys(16)) {
+		if(this.input.keys[16]) {
 			this.deltaTime = this.clock.getDelta() * 0.3;
 		} else {
 			this.deltaTime = this.clock.getDelta();
