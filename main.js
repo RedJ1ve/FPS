@@ -14,7 +14,7 @@ pmremGenerator.compileEquirectangularShader();
 
 const loader = new RGBELoader();
 const texture = loader.load(
-	'./skybox.hdr',
+	'/skybox.hdr',
 	() => {
 		var envMap = pmremGenerator.fromEquirectangular( texture ).texture;
 		
