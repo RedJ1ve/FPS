@@ -51,7 +51,7 @@ class Player {
 		this.clock = new THREE.Clock();
 		this.euler = new THREE.Euler(0, 0, 0, 'YXZ');
 		this.sensitivity = 0.01;
-        this.camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+        this.camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 5000 );
 		this.lookDir = new THREE.Vector3(0, 0, 0);
 		this.wishDir = new THREE.Vector3(0, 0, 0);
 		this.forwardSpeed = 1;
