@@ -76,7 +76,12 @@ class Player {
 		this.input.update();
 		this.update_camera();
 		this.update_wishDir();
-		this.deltaTime = this.clock.getDelta();
+
+		if(this.input.keyDown(16)) {
+			this.deltaTime = this.clock.getDelta() * 0.3;
+		} else {
+			this.deltaTime = this.clock.getDelta();
+		}
 
 		this.velocity.y -= this.gravity * this.deltaTime;
 
