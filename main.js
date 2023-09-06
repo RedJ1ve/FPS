@@ -39,7 +39,7 @@ const box1 = new THREE.Box3();
 scene.add(mesh1);
 
 const geometry2 = new THREE.BoxGeometry(40, 40, 40);
-const material2 = new THREE.MeshStandardMaterial( { roughness: 0, metalness: 1, color: 0xff0000 } );
+const material2 = new THREE.MeshStandardMaterial( { roughness: 0, metalness: 1, color: 0x008000 } );
 const mesh2 = new THREE.Mesh( geometry2, material2 );
 const box2 = new THREE.Box3();
 mesh2.position.set(0, 20, -300);
