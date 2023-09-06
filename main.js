@@ -54,9 +54,13 @@ function animate() {
 	box2.setFromObject(mesh2);
 
 	if (box1.intersectsBox(box2)) {
-		console.log(GJK(mesh1, mesh2));
+		if (GJK(mesh1, mesh2)) {
+			console.log(true);
+			mesh2.material.color.setHex( 0xff0000 );
+		}
 	} else {
 		console.log(false);
+		mesh2.material.color.setHex( 0x008000 );
 	}
 	renderer.render( scene, player.camera );
 }
