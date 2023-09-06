@@ -202,9 +202,9 @@ class Player {
 		let k = this.airControlPower * dot * dot * 32 * this.deltaTime;
 
 		if (dot > 0) {
-			this.velocity.x = this.velocity.x * speed * this.wishDir.x * k;
-			this.velocity.y = this.velocity.y * speed * this.wishDir.y * k;
-			this.velocity.z = this.velocity.z * speed * this.wishDir.z * k;
+			this.velocity.x = this.velocity.x * speed + this.wishDir.x * k;
+			this.velocity.y = this.velocity.y * speed + this.wishDir.y * k;
+			this.velocity.z = this.velocity.z * speed + this.wishDir.z * k;
 
 			this.velocity.normalize();
 		}
