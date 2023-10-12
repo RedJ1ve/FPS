@@ -5,7 +5,7 @@ import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js'
 COLLISION DETECTION
 */
 
-function GJK(collider1, collider2) {
+function GJK(collider1, collider2, full) {
     let simplex = [
         new THREE.Vector3(),
         new THREE.Vector3(),
@@ -190,6 +190,10 @@ function GJK(collider1, collider2) {
             return true;
         }
 
+        if (full == true) {
+            EPA(simplex, n, collider1, collider2);
+        }    
+
         return true;
     }
 }
@@ -233,23 +237,92 @@ function findFurthestPoint(collider, direction) {
 COLLISION RESOLUTION
 */
 
-function EPA(simplex, collider1, collider2) {
-    let minIndex = 0;
+function EPA(simplex, n, collider1, collider2) {
+    let polytope = new Array;
+
+    for (i = 0; i < n; i++) {
+        polytope.push(simplex[i]);
+    }
+
+    let faces = [
+        0, 1, 2,
+        0, 3, 1,
+        0, 2, 3,
+        1, 3, 2
+    ];
+
+    let faceNormals = GetFaceNormals(polytope, faces);
+
+    let normals = faceNormals[0];
+    let minFace = faceNormals[1];
+
+    let minNormal = new THREE.Vector3();
     let minDistance = Infinity;
-    let minNormal;
 
     while (minDistance == Infinity) {
-        for (let i = 0; i < simplex.length; i++) {
-            let j = (i+1) % simplex.length;
+        minNormal.set(normals[minFace].x, normals[minFace].y, normals[minFace].z);
+        minDistance = normals[minFace].w;
 
-            let vertexI = simplex[i].copy();
-            let vertexJ = simplex[j].copy();
+        let support = Support(collider1, collider2, minNormal);
+        let sDistance = minNormal.dot(support);
 
-            let ij = vertexJ.copy().sub(vertexI);
+        if (Math.abs(sDistance - minDistance) > 0.00001) {
+            minDistance = Infinity;
 
-            let normal = new THREE.Vector3(ij.y, )
+            let uniqueEdges = new Array;
+
+            for (let i = 0; i < normals.length(); i++) {
+                if (SameDirection(normals[i], support)) {
+                    let f = i * 3;
+
+                    AddIfUniqueEdge(uniqueEdges, faces, f, f + 1);
+                    AddIfUniqueEdge(uniqueEdges, faces, f + 1, f + 2);
+                    AddIfUniqueEdge(uniqueEdges, faces, f + 2, f);
+
+                    faces[f + 2] = faces.pop();
+                    faces[f + 1] = faces.pop();
+                    faces[f] = faces.pop();
+
+                    normals[i] = normals.pop();
+
+                    i--;
+                }
+            }
+
+            let newFaces = new Array[];
+
+            for (let i = 0; i < uniqueEdges.length; i += 2) {
+                newFaces.push(uniqueEdges[i]);
+                newFaces.push(uniqueEdges[i + 1]);
+                newFaces.push(polytope.length);
+            }
+
+            polytope.push(support);
+
+            let newFaceNormals = GetFaceNormals(polytope, faces);
+
+            let newNormals = newFaceNormals[0];
+            let newMinFace = newFaceNormals[1];
+
+            let oldMinDistance = Infinity;
+
+            for (i = 0; i < normals.length(); i++) {
+                if (normals[i].w < oldMinDistance) {
+                    oldMinDistance = normals[i].w;
+                    minFace = i;
+                }
+            }
+
+            if (newNormals[newMinFace].w < oldMinDistance) {
+                minFace = newMinFace + normals.length();
+            }
+
+            faces.concat(newFaces);
+            normals.concat(newNormals);
         }
     }
+
+    
 }
 
 export default GJK;
