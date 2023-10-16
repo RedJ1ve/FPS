@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import Player from './Player.js'
-import GJK from './Collision.js';
+import { GJK, EPA } from './Collision.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
 const scene = new THREE.Scene();
@@ -54,9 +54,12 @@ function animate() {
 	box2.setFromObject(mesh2);
 
 	if (box1.intersectsBox(box2)) {
-		if (GJK(mesh1, mesh2)) {
+		let collision = GJK(box1, box2);
+		if (collision.collision == true) {
 			console.log(true);
-			mesh2.material.color.setHex( 0xff0000 );
+			
+			let points = EPA(collision.simplex, collision.n, box1, box2);
+			player.camera.position.add(points.normal.setLength(points.penetrationDepth));
 		}
 	} else {
 		console.log(false);

@@ -5,7 +5,7 @@ import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js'
 COLLISION DETECTION
 */
 
-function GJK(collider1, collider2, full) {
+function GJK(collider1, collider2) {
     let simplex = [
         new THREE.Vector3(),
         new THREE.Vector3(),
@@ -17,14 +17,24 @@ function GJK(collider1, collider2, full) {
     simplex[1] = support(collider1, collider2, direction);
 
     if (simplex[1].dot(direction) < 0) {
-        return false;
+        let collision = {
+            collision: false,
+            simplex: simplex,
+            n: n
+        }
+        return collision;
     }
 
     direction = simplex[1].clone().negate();
     simplex[0] = support(collider1, collider2, direction);
 
     if (simplex[0].dot(direction) < 0) {
-        return false;
+        let collision = {
+            collision: false,
+            simplex: simplex,
+            n: n
+        }
+        return collision;
     }
 
     let temp1 = simplex[1].clone().sub(simplex[0]);
@@ -35,7 +45,12 @@ function GJK(collider1, collider2, full) {
         let a = support(collider1, collider2, direction);
 
         if (a.dot(direction) < 0) {
-            return false;
+            let collision = {
+                collision: false,
+                simplex: simplex,
+                n: n
+            }
+            return collision;
         }
 
         if (n == 2) {
@@ -133,7 +148,12 @@ function GJK(collider1, collider2, full) {
         let tests = ((abc.dot(ao) > 0)? ABC : 0) | ((acd.dot(ao) > 0)? ACD : 0) | ((adb.dot(ao) > 0)? ADB : 0);
 
         if (tests == 0) {
-            return true;
+            let collision = {
+                collision: true,
+                simplex: simplex,
+                n: n
+            }
+            return collision;
         } else if (tests = ABC) {
             triangle();
         } else if (tests == ACD) {
@@ -187,14 +207,24 @@ function GJK(collider1, collider2, full) {
 
             tetrahedron();
         } else {
-            return true;
+            let collision = {
+                collision: true,
+                simplex: simplex,
+                n: n
+            }
+            return collision;
         }
-
         if (full == true) {
             EPA(simplex, n, collider1, collider2);
         }    
 
-        return true;
+
+        let collision = {
+            collision: true,
+            simplex: simplex,
+            n: n
+        }
+        return collision;
     }
 }
 
@@ -325,7 +355,6 @@ function EPA(simplex, n, collider1, collider2) {
     let points = {
         normal: minNormal,
         penetrationDepth: minDistance + 0.001,
-        hasCollision: true
     };
 
     return points;
@@ -369,7 +398,7 @@ function AddIfUniqueEdge(edges, faces, a, b) {
         edges.push([faces[a], faces[b]]);
     }
   
-    return edges; // Return the updated array
+    return edges;
 }
 
-export default GJK;
+export default { GJK, EPA };
