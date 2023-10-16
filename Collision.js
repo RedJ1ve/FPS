@@ -238,7 +238,7 @@ COLLISION RESOLUTION
 */
 
 function EPA(simplex, n, collider1, collider2) {
-    let polytope = new Array;
+    let polytope = new Array();
 
     for (i = 0; i < n; i++) {
         polytope.push(simplex[i]);
@@ -269,15 +269,15 @@ function EPA(simplex, n, collider1, collider2) {
         if (Math.abs(sDistance - minDistance) > 0.00001) {
             minDistance = Infinity;
 
-            let uniqueEdges = new Array;
+            let uniqueEdges = new Array();
 
             for (let i = 0; i < normals.length(); i++) {
                 if (SameDirection(normals[i], support)) {
                     let f = i * 3;
 
-                    AddIfUniqueEdge(uniqueEdges, faces, f, f + 1);
-                    AddIfUniqueEdge(uniqueEdges, faces, f + 1, f + 2);
-                    AddIfUniqueEdge(uniqueEdges, faces, f + 2, f);
+                    uniqueEdges = AddIfUniqueEdge(uniqueEdges, faces, f, f + 1);
+                    uniqueEdges = AddIfUniqueEdge(uniqueEdges, faces, f + 1, f + 2);
+                    uniqueEdges = AddIfUniqueEdge(uniqueEdges, faces, f + 2, f);
 
                     faces[f + 2] = faces.pop();
                     faces[f + 1] = faces.pop();
@@ -289,7 +289,7 @@ function EPA(simplex, n, collider1, collider2) {
                 }
             }
 
-            let newFaces = new Array[];
+            let newFaces = new Array();
 
             for (let i = 0; i < uniqueEdges.length; i += 2) {
                 newFaces.push(uniqueEdges[i]);
@@ -322,7 +322,54 @@ function EPA(simplex, n, collider1, collider2) {
         }
     }
 
-    
+    let points = {
+        normal: minNormal,
+        penetrationDepth: minDistance + 0.001,
+        hasCollision: true
+    };
+
+    return points;
+}
+
+function GetFaceNormals(polytope, faces) {
+    let normals = new Array();
+    minTriangle = 0;
+    minDistance = Infinity;
+
+    for (let i = 0; i < faces.length(); i += 3) {
+        let a = polytope[faces[i]];
+        let b = polytope[faces[i + 1]];
+        let c = polytope[faces[i + 2]];
+
+        let normal = b.sub(a).cross(c.sub(a)).normalize();
+        distance = normal.dot(a);
+
+        if (distance < 0) {
+            normal.negate();
+            distance *= -1;
+        }
+
+        normals.push(new THREE.Vector4(normal.x, normal.y, normal.z, distance));
+
+        if (distance < minDistance) {
+            minTriangle = i/3;
+            minDistance = distance;
+        }
+    }
+
+    return [ normals, minTriangle];
+}
+
+function AddIfUniqueEdge(edges, faces, a, b) {
+    const reverse = edges.find(([x, y]) => x === faces[b] && y === faces[a]);
+  
+    if (reverse !== undefined) {
+        edges.splice(edges.indexOf(reverse), 1);
+    } else {
+        edges.push([faces[a], faces[b]]);
+    }
+  
+    return edges; // Return the updated array
 }
 
 export default GJK;
