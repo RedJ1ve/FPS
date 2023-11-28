@@ -3,6 +3,7 @@ import Player from './Player.js'
 import EPA from './EPA.js';
 import GJK from './GJK.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import skybox from './public.skybox.hdr';
 
 const physicsSteps = 1;
 
@@ -17,7 +18,7 @@ pmremGenerator.compileEquirectangularShader();
 
 const loader = new RGBELoader();
 const texture = loader.load(
-	'./skybox.hdr',
+	skybox,
 	() => {
 		var envMap = pmremGenerator.fromEquirectangular( texture ).texture;
 		

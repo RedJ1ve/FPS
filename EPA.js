@@ -26,6 +26,7 @@ function EPA (polytope, colliderA, colliderB) {
 
         if (Math.abs(sDistance - minDistance) > epsilon) {
 
+            minDistance = Number.MAX_VALUE;
             let uniqueEdges = new Array();
 
             for (let i = 0; i < normals.length; i++) {
