@@ -3,9 +3,7 @@ import Player from './Player.js'
 import EPA from './EPA.js';
 import GJK from './GJK.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
-import skybox from './public.skybox.hdr';
-
-const physicsSteps = 1;
+//import { skybox } from './assets/skybox.hdr';
 
 const scene = new THREE.Scene();
 
@@ -13,12 +11,12 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
-var pmremGenerator = new THREE.PMREMGenerator( renderer );
+const pmremGenerator = new THREE.PMREMGenerator( renderer );
 pmremGenerator.compileEquirectangularShader();
 
-const loader = new RGBELoader();
+const loader = new RGBELoader().setPath('assets/');
 const texture = loader.load(
-	skybox,
+	'skybox.hdr',
 	() => {
 		var envMap = pmremGenerator.fromEquirectangular( texture ).texture;
 		
