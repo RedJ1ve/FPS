@@ -18,9 +18,7 @@ function EPA (polytope, colliderA, colliderB) {
     let minDistance = Number.MAX_VALUE;
 
     while (minDistance === Number.MAX_VALUE) {
-        minNormal.set(normals[minFace].x, normals[minFace].y, normals[minFace].z);
-        minDistance = normals[minFace].w;
-
+        let minNormal = new THREE.Vector3().copy(normals[minFace]);
         let support = Support(colliderA, colliderB, minNormal);
         let sDistance = minNormal.dot(support);
 
