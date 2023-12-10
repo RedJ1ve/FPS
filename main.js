@@ -3,7 +3,6 @@ import Player from './Player.js'
 import EPA from './EPA.js';
 import GJK from './GJK.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
-//import { skybox } from './assets/skybox.hdr';
 
 const scene = new THREE.Scene();
 

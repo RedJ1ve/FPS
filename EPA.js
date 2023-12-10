@@ -17,12 +17,18 @@ function EPA (polytope, colliderA, colliderB) {
     let minNormal = new THREE.Vector3();
     let minDistance = Number.MAX_VALUE;
 
-    while (minDistance === Number.MAX_VALUE) {
+    while (minDistance == Number.MAX_VALUE) {
         minNormal.set(normals[minFace].x, normals[minFace].y, normals[minFace].z);
         minDistance = normals[minFace].w;
 
+        console.log('minNormal:', minNormal);
+        console.log('minDistance:', minDistance);
+
         let support = Support(colliderA, colliderB, minNormal);
         let sDistance = minNormal.dot(support);
+
+        console.log('support:', support);
+        console.log('sDistance:', sDistance);
 
         if (Math.abs(sDistance - minDistance) > epsilon) {
 
@@ -47,6 +53,8 @@ function EPA (polytope, colliderA, colliderB) {
                 }
             }
 
+            console.log('uniqueEdges:', uniqueEdges);
+
             let newFaces = new Array();
 
             for (let [edgeIndex1, edgeIndex2] of uniqueEdges) {
@@ -55,11 +63,13 @@ function EPA (polytope, colliderA, colliderB) {
                 newFaces.push(polytope.length);
             }
 
+            console.log('newFaces:', newFaces);
+
             polytope.push(support);
 
-            faceNormals = GetFaceNormals(polytope, faces);
-            let newNormals = faceNormals.normals;
-            let newMinFace = faceNormals.minTriangle;
+            let newFaceNormals = GetFaceNormals(polytope, faces);
+            let newNormals = newFaceNormals.normals;
+            let newMinFace = newFaceNormals.minTriangle;
             let oldMinDistance = Number.MAX_VALUE;
 
             for (let i = 0; i < normals.length; i++) {
@@ -69,9 +79,14 @@ function EPA (polytope, colliderA, colliderB) {
                 }
             }
 
+            console.log('newNormals:', newNormals);
+            console.log('newMinFace:', newMinFace);
+
             if (newNormals[newMinFace].w < oldMinDistance) {
                 minFace = newMinFace + normals.length;
             }
+
+            console.log('minFace:', minFace);
 
             faces = faces.concat(newFaces);
             normals = normals.concat(newNormals);
@@ -90,9 +105,9 @@ function GetFaceNormals(polytope, faces) {
     let minDistance = Number.MAX_VALUE;
 
     for (let i = 0; i < faces.length; i += 3) {
-        let a = polytope[faces[i]];
-        let b = polytope[faces[i + 1]];
-        let c = polytope[faces[i + 2]];
+        let a = polytope[faces[i]].clone();
+        let b = polytope[faces[i + 1]].clone();
+        let c = polytope[faces[i + 2]].clone();
 
         let normal = new THREE.Vector3().crossVectors(b.clone().sub(a), c.clone().sub(a)).normalize();
         let distance = normal.dot(a);
