@@ -6,9 +6,9 @@ const epsilon = 0.001;
 function EPA (polytope, colliderA, colliderB) {
     let faces = [
         0, 1, 2,
-		0, 3, 1,
-		0, 2, 3,
-		1, 3, 2
+	0, 3, 1,
+	0, 2, 3,
+	1, 3, 2
     ];
 
     let [normals, minFace] = GetFaceNormals(polytope, faces);
