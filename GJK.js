@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { Support, FindFurthestPoint } from "./Support.js";
-import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
+import { Support , SameDirection } from "./Support.js";
+
 
 const epsilon = 1e-6;
 
@@ -46,10 +46,6 @@ function NextSimplex(points, direction) {
     }
 
     return false;
-}
-
-function SameDirection(directionA, directionB) {
-    return (directionA.dot(directionB) > epsilon)? true : false;
 }
 
 function Line(points, direction) {

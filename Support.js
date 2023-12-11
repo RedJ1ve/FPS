@@ -32,4 +32,8 @@ function FindFurthestPoint(collider, direction) {
     return maxPoint;
 }
 
-export { Support, FindFurthestPoint };
+function SameDirection(directionA, directionB) {
+    return directionA.dot(directionB) > 0;
+}
+
+export { Support, FindFurthestPoint, SameDirection };
