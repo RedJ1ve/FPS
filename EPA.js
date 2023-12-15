@@ -16,7 +16,7 @@ function EPA (polytope, colliderA, colliderB) {
     let minDistance = Number.MAX_VALUE;
 
     while (minDistance == Number.MAX_VALUE) {
-        minNormal = new THREE.Vector3().copy(normals[minFace]);
+        minNormal.copy(normals[minFace]);
         minDistance = normals[minFace].clone().w;
         console.log('minNormal:', minNormal);
         console.log('minDistance:', minDistance);
@@ -26,7 +26,8 @@ function EPA (polytope, colliderA, colliderB) {
 
         console.log('support:', support);
         console.log('sDistance:', sDistance);
-        console.log('minDistance:', sDistance);
+        console.log('minDistance:', minDistance);
+        console.log('normals: ', normals);
 
         if (Math.abs(sDistance - minDistance) > epsilon) {
 
@@ -34,6 +35,8 @@ function EPA (polytope, colliderA, colliderB) {
             let uniqueEdges = new Array();
 
             for (let i = 0; i < normals.length; i++) {
+                console.log('SameDirection', SameDirection(normals[i], support));
+                //if ( SameDirection(normals[i], support) ) {
                 if ( normals[i].dot(support) > normals[i].dot(polytope[faces[i * 3]])) {
                     let f = i * 3;
 
@@ -65,7 +68,7 @@ function EPA (polytope, colliderA, colliderB) {
 
             polytope.push(support);
 
-            let [newNormals, newMinFace] = GetFaceNormals(polytope, faces);
+            let [newNormals, newMinFace] = GetFaceNormals(polytope, newFaces);
             let oldMinDistance = Number.MAX_VALUE;
 
             for (let i = 0; i < normals.length; i++) {
