@@ -40,11 +40,11 @@ player.camera.add(mesh1);
 const box1 = new THREE.Box3();
 scene.add(player.camera);
 
-const geometry2 = new THREE.BoxGeometry(40, 40, 40);
+const geometry2 = new THREE.BoxGeometry(4000, 4000, 4000);
 const material2 = new THREE.MeshStandardMaterial( { roughness: 0, metalness: 1, color: 0x008000 } );
 const mesh2 = new THREE.Mesh( geometry2, material2 );
 const box2 = new THREE.Box3();
-mesh2.position.set(0, 20, -300);
+mesh2.position.set(0, 20, -3000);
 scene.add(mesh2);
 
 
@@ -55,18 +55,18 @@ function animate() {
 	player.update();
 
 	if (box1.intersectsBox(box2)) {
-		let collision = GJK(mesh2, mesh1);
+		let [collision, simplex] = GJK(mesh1, mesh2);
 		
-		if (collision.collision == true) {
-			console.log(true);
-			const rebound = 1;
+		if (collision == true) {
+			//console.log(true);
+			const rebound = 0.8;
 
-			let points = EPA(collision.simplex, mesh2, mesh1);
-			const offset = points.normal.clone().multiplyScalar(points.penetrationDepth);
+			let [normal, penetrationDepth] = EPA(simplex, mesh1, mesh2);
+			const offset = normal.clone().multiplyScalar(penetrationDepth);
 			
-			player.camera.position.add(offset);
+			player.camera.position.sub(offset);
 
-			player.velocity.reflect(points.normal.clone());
+			player.velocity.reflect(normal.clone());
 			player.velocity.multiplyScalar(rebound);
 
 			

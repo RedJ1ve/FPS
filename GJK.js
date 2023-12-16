@@ -16,10 +16,10 @@ function GJK(colliderA, colliderB) {
         support.copy(Support(colliderA, colliderB, direction));
 
         if (support.dot(direction) <= epsilon) {
-            return {
-                'collision': false,
-                'simplex': points
-            };
+            return [
+                false,
+                points
+            ];
         }
 
         points.unshift(support.clone());
@@ -29,10 +29,10 @@ function GJK(colliderA, colliderB) {
         }
 
         if(NextSimplex(points, direction)) {
-            return {
-                'collision': true,
-                'simplex': points
-            };
+            return [
+                true,
+                points
+            ];
         }
     }
 }
