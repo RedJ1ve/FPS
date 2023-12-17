@@ -40,7 +40,7 @@ player.camera.add(mesh1);
 const box1 = new THREE.Box3();
 scene.add(player.camera);
 
-const geometry2 = new THREE.BoxGeometry(4000, 100, 1000);
+const geometry2 = new THREE.BoxGeometry(4000, 200, 1000);
 const material2 = new THREE.MeshStandardMaterial( { roughness: 0, metalness: 1, color: 0x008000 } );
 const mesh2 = new THREE.Mesh( geometry2, material2 );
 const box2 = new THREE.Box3();
