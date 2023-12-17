@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Support, SameDirection } from "./Support.js";
+import { Support } from "./Support.js";
 
 const epsilon = 0.01;
 
@@ -18,16 +18,9 @@ function EPA (polytope, colliderA, colliderB) {
     while (minDistance == Number.MAX_VALUE) {
         minNormal.copy(normals[minFace]);
         minDistance = normals[minFace].clone().w;
-        //console.log('minNormal:', minNormal);
-        //console.log('minDistance:', minDistance);
 
         let support = Support(colliderA, colliderB, minNormal);
         let sDistance = minNormal.dot(support);
-
-        //console.log('support:', support);
-        //console.log('sDistance:', sDistance);
-        //console.log('minDistance:', minDistance);
-        //console.log('normals: ', normals);
 
         if (Math.abs(sDistance - minDistance) > epsilon) {
 
@@ -35,36 +28,23 @@ function EPA (polytope, colliderA, colliderB) {
             let uniqueEdges = new Array();
 
             for (let i = 0; i < normals.length; i++) {
-                console.log('Iteration: ', i);
-
                 let normal = new THREE.Vector3().copy(normals[i])
-                //if ( SameDirection(normal, support) ) {
                 if ( normal.dot(support) > normal.dot(polytope[faces[i * 3]])) {
                     let f = i * 3;
-
-                    console.log('f: ', f);
 
                     AddIfUniqueEdge(uniqueEdges, faces, f, f + 1);
                     AddIfUniqueEdge(uniqueEdges, faces, f + 1, f + 2);
                     AddIfUniqueEdge(uniqueEdges, faces, f + 2, f);
 
-                    console.log('Updated uniqueEdges: ', uniqueEdges);
-
                     faces[f + 2] = faces.pop();
                     faces[f + 1] = faces.pop();
                     faces[f] = faces.pop();
 
-                    console.log('Updated faces: ', faces);
-
                     normals[i].copy(normals.pop());
-
-                    console.log('Updated normals: ', normals);
 
                     i--;
                 }
             }
-
-            console.log('uniqueEdges:', uniqueEdges);
 
             let newFaces = new Array();
 
@@ -74,12 +54,7 @@ function EPA (polytope, colliderA, colliderB) {
                 newFaces.push(polytope.length);
             }
 
-            //console.log('newFaces:', newFaces);
-
             polytope.push(support.clone());
-
-            //console.log('polytope: ', polytope);
-            //console.log('newFaces: ', newFaces);
 
             let [newNormals, newMinFace] = GetFaceNormals(polytope, newFaces);
             let oldMinDistance = Number.MAX_VALUE;
@@ -91,22 +66,14 @@ function EPA (polytope, colliderA, colliderB) {
                 }
             }
 
-            //console.log('newNormals:', newNormals);
-            //console.log('newMinFace:', newMinFace);
-
             if (newNormals[newMinFace].w < oldMinDistance) {
                 minFace = newMinFace + normals.length;
             }
-
-            //console.log('minFace:', minFace);
 
             faces = faces.concat(newFaces);
             normals = normals.concat(newNormals);
         }
     }
-
-    //console.log('normal: ' + minNormal);
-    //console.log('penetrationDepth: ' + minDistance);
 
     return [
         minNormal,
@@ -144,15 +111,11 @@ function GetFaceNormals(polytope, faces) {
 }
 
 function AddIfUniqueEdge(edges, faces, a, b) {
-    console.log('Adding edge:', faces[a], faces[b]);
-
     let reverse = edges.findIndex(([edgeA, edgeB]) => edgeB == faces[a] && edgeA == faces[b]);
 
     if (reverse != -1) {
         edges.splice(reverse, 1);
-        console.log('Edge already exists. Removing.');
     } else {
-        console.log('Adding edge to uniqueEdges.');
         edges.push([faces[a], faces[b]]);
     }
 }

@@ -40,14 +40,19 @@ player.camera.add(mesh1);
 const box1 = new THREE.Box3();
 scene.add(player.camera);
 
-const geometry2 = new THREE.BoxGeometry(4000, 4000, 4000);
+const geometry2 = new THREE.BoxGeometry(4000, 100, 1000);
 const material2 = new THREE.MeshStandardMaterial( { roughness: 0, metalness: 1, color: 0x008000 } );
 const mesh2 = new THREE.Mesh( geometry2, material2 );
 const box2 = new THREE.Box3();
-mesh2.position.set(0, 20, -3000);
+mesh2.position.set(0, 50, -3000);
 scene.add(mesh2);
 
-
+const geometry3 = new THREE.BoxGeometry(400, 10, 400);
+const material3 = new THREE.MeshStandardMaterial( { roughness: 0, metalness: 1, color: 0x008000 } );
+const mesh3 = new THREE.Mesh( geometry3, material3 );
+const box3 = new THREE.Box3();
+mesh3.position.set(500, 5, 0);
+scene.add(mesh3);
 
 function animate() {
 	requestAnimationFrame( animate );
@@ -78,8 +83,33 @@ function animate() {
 		}
 	}
 
+	if (box1.intersectsBox(box3)) {
+		let [collision, simplex] = GJK(mesh1, mesh3);
+		
+		if (collision == true) {
+			//console.log(true);
+			const rebound = 0.8;
+
+			let [normal, penetrationDepth] = EPA(simplex, mesh1, mesh3);
+			const offset = normal.clone().multiplyScalar(penetrationDepth);
+			
+			player.camera.position.sub(offset);
+
+			player.velocity.reflect(normal.clone());
+			player.velocity.multiplyScalar(rebound);
+
+			
+			//player.velocity.add(offset.multiplyScalar(rebound));
+			box1.setFromObject(mesh1);
+		} else {
+		//console.log(false);
+		mesh2.material.color.setHex( 0x008000 );
+		}
+	}
+
 	box1.setFromObject(mesh1);
 	box2.setFromObject(mesh2);
+	box3.setFromObject(mesh3);
 
 	renderer.render( scene, player.camera );
 }
