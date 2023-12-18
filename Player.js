@@ -93,7 +93,7 @@ class Player {
 			this.airMove();
 		}
 
-		//console.log(this.velocity.length());
+		console.log(this.velocity.length());
 
 		this.camera.position.add(this.velocity.clone().multiplyScalar(this.deltaTime * 60));
 	}
